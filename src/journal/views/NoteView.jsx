@@ -6,7 +6,9 @@ const widthGallery = `calc(100% - 0px)`;
 
 export const NoteView = () => {
   return (
-    <Grid container
+    <Grid 
+      className= 'animate__animated animate__fadeIn animate__faster'
+      container
       spacing={0}
       direction="row"
       alignItems="center"

@@ -31,7 +31,7 @@ const formValidations = {
 
 export const LoginPage = () => {
 
-  const [formSubmited, setformSubmited] = useState(false); 
+  const [formSubmited] = useState(false); 
 
   const {status, errorMessage} = useSelector((state) => state.auth);
 
@@ -55,7 +55,7 @@ export const LoginPage = () => {
 
   return (
     <AuthLayout title="Login">
-      <form onSubmit={onSubmit}>
+      <form onSubmit={onSubmit} className= 'animate__animated animate__fadeIn animate__faster'>
         <Grid container spacing={2}>
           <Grid size={12}>
             <TextField
