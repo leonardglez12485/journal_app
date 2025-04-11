@@ -1,22 +1,65 @@
-import { SaveOutlined } from "@mui/icons-material"
-import { Button, Grid, TextField, Typography } from "@mui/material"
+import { SaveOutlined, UploadFileOutlined } from "@mui/icons-material"
+import { Button, Grid, IconButton, TextField, Typography } from "@mui/material"
+import Swal from "sweetalert2";
+import 'sweetalert2/dist/sweetalert2.css';
 import { ImageGallery } from "../components"
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useForm } from "../../hooks/useForm";
 import { dateFormat } from "../../helpers/dateFormat";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { setActiveNote } from "../../store/journal/journalSlice";
+import { startSaveNote, startUploadingFiles } from "../../store/journal/thunks";
 
 const widthGallery = `calc(100% - 0px)`;
 
 export const NoteView = () => {
 
-  const {active} = useSelector((state) => state.journal);
+   const dispatch = useDispatch();
+
+  const {active, messageSaved} = useSelector((state) => state.journal);
 
   const {body, title, date, imageURL, onInputChange, formState} = useForm(active);
+
+  const fileInputRef = useRef()
+
+  useEffect(() => {
+   dispatch(setActiveNote(formState));
+  }, [formState, dispatch]);
+
+  useEffect(() => {
+
+    if(messageSaved.length > 0){
+      Swal.fire({
+        title: messageSaved,
+        icon: 'success',
+        showConfirmButton: true,
+       // timer: 1500
+      })
+    }
+ 
+  }, [messageSaved])
+  
 
   const dateString = useMemo(() => {
      return dateFormat(date);
   }, [date]);
+
+
+  const onClickSaveNote = () => {
+    dispatch(startSaveNote(formState));
+  }
+
+  const onFileInputChange = ({ target }) => {
+    if (!target.files || target.files.length === 0) return;
+    const files = Array.from(target.files);
+    dispatch(startUploadingFiles(files));
+    Swal.fire({
+      title: 'Files uploaded successfully!',
+      icon: 'success',
+      showConfirmButton: true,
+      });
+
+  };
 
   return (
     <Grid 
@@ -36,7 +79,25 @@ export const NoteView = () => {
             </Typography>
         </Grid>
         <Grid>
-          <Button color="primary" sx={{borderRadius: 2, backgroundColor: "white"}} >
+
+          <input 
+            type="file"
+            multiple
+            ref={fileInputRef}
+            accept="image/png, image/jpeg, image/jpg"
+            onChange={onFileInputChange}
+            style={{display: "none"}}
+          />
+
+          <IconButton
+          color="primary"
+          onClick={() => fileInputRef.current.click()}
+          sx={{borderRadius: 2, backgroundColor: "white", mr: 1, ml: 2}}
+          >
+            <UploadFileOutlined sx={{fontSize: 26}}/>
+          </IconButton>
+
+          <Button onClick={onClickSaveNote} color="primary" sx={{borderRadius: 2, backgroundColor: "white"}} >
             <SaveOutlined sx={{fontSize: 30, mr: 1}}/>
             Save
           </Button>
@@ -66,7 +127,7 @@ export const NoteView = () => {
             sx={{ border: "none", mt:1}}
          />
         {/* </Grid> */}
-        <ImageGallery widthGallery = {widthGallery}  />
+        <ImageGallery images={active.imageURL}  />
     </Grid>
   )
 }

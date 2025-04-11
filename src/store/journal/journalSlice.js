@@ -25,19 +25,34 @@
          }, 
          setActiveNote: (state, action) => {
             state.active = action.payload;
+            state.messageSaved = '';
          },
          setNotes: (state, action) => {
              state.notes = action.payload;
              state.messageSaved = '';
              state.saving = false;
          },
-         setSaving: (state, action) => {
-             
+         setSaving: (state) => {
+             state.saving = true;
+             state.messageSaved = '';
          },
          updateNode: (state, action) => {
+            state.saving = false;
+            state.notes = state.notes.map(note => {
+                if(note.id === action.payload.id){
+                    //return { ...note, ...action.payload };
+                    return action.payload;
+                }
+                return note;
+            });
+            state.messageSaved = `${action.payload.title}, updated successfully`;
              
          },
-        deleteNoteById: (state, action) => {
+         setPhotosToActiveNote: (state, action) => {
+             state.active.imageURL = [...state.active.imageURL, ...action.payload];
+             state.saving = false;
+         },
+        deleteNoteById: () => {
                 
         },
      
@@ -46,4 +61,4 @@
  })
  
  
- export const { addNewEmptyNote, setActiveNote, setNotes, setSaving, updateNode, deleteNoteById, savingNewNote } = journalSlice.actions
+ export const { addNewEmptyNote, setActiveNote, setNotes, setSaving, updateNode, deleteNoteById, savingNewNote, setPhotosToActiveNote} = journalSlice.actions
